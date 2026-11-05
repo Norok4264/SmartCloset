@@ -77,6 +77,6 @@ class ClothingRepository(context: Context) {
             }
         } catch (t: Throwable) { File(photoDir, name).delete(); throw t }
         finally { normalized.recycle() }
-        name
+        return name
     }
 }

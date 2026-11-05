@@ -180,7 +180,7 @@ private fun ClosetApp(vm: ClosetViewModel = viewModel()) {
                 OutlinedButton(onClick = onManual) { Text("수동 모드") }
                 if (!settings.manualMode && settings.location != null) TextButton(onClick = onRefresh) { Text("갱신") }
             }
-            if (result is WeatherResult.Cached) Text("최근 성공한 날씨를 표시 중입니다. 갱신 ${java.time.Instant.ofEpochMilli(result.snapshot.updatedAt).atZone(java.time.ZoneId.systemDefault()).toLocalStringForCloset()}", style = MaterialTheme.typography.bodySmall)
+            if (result is WeatherResult.Cached) Text("최근 성공한 날씨를 표시 중입니다. 갱신 ${java.time.Instant.ofEpochMilli(result.snapshot.updatedAt).atZone(java.time.ZoneId.systemDefault()).toLocalDateTime().toLocalStringForCloset()}", style = MaterialTheme.typography.bodySmall)
         }
     }
 }
@@ -411,7 +411,7 @@ private fun recordCurrent(vm: ClosetViewModel, outfit: OutfitCombination?, confi
                         Box(Modifier.weight(1f).height(12.dp).background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(20.dp))) {
                             if (percent > 0) Box(Modifier.fillMaxWidth(percent / 100f).fillMaxHeight().background(MaterialTheme.colorScheme.primary, RoundedCornerShape(20.dp)))
                         }
-                        Text("$count벌 · $percent%", Modifier.width(92.dp), style = MaterialTheme.typography.bodySmall)
+                        Text("${count}벌 · $percent%", Modifier.width(92.dp), style = MaterialTheme.typography.bodySmall)
                     }
                 }
                 Text("종류별 비율의 분모는 전체 등록 의류입니다.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -428,7 +428,7 @@ private fun recordCurrent(vm: ClosetViewModel, outfit: OutfitCombination?, confi
                         Box(Modifier.weight(1f).height(14.dp).background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(20.dp))) {
                             if (count > 0) Box(Modifier.fillMaxWidth(count.toFloat() / maxSeasonCount).fillMaxHeight().background(MaterialTheme.colorScheme.secondary, RoundedCornerShape(20.dp)))
                         }
-                        Text("$count벌", Modifier.width(48.dp), style = MaterialTheme.typography.bodySmall)
+                        Text("${count}벌", Modifier.width(48.dp), style = MaterialTheme.typography.bodySmall)
                     }
                 }
                 Text("한 벌을 여러 계절에 등록할 수 있어 계절별 수량 합계는 전체 수량보다 클 수 있습니다.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -446,7 +446,7 @@ private fun recordCurrent(vm: ClosetViewModel, outfit: OutfitCombination?, confi
                     val target = stats.goals[key]
                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                         Text("$season $category", Modifier.weight(1f))
-                        Text("현재 $current벌 · 목표 ${target?.let { "${it}벌" } ?: "미설정"}", style = MaterialTheme.typography.bodySmall)
+                        Text("현재 ${current}벌 · 목표 ${target?.let { "${it}벌" } ?: "미설정"}", style = MaterialTheme.typography.bodySmall)
                     }
                 } }
             }
@@ -612,7 +612,7 @@ private fun goalKey(key: ClosetTargetKey) = "${key.season}_${key.category}"
         Row(Modifier.fillMaxWidth().padding(top = 20.dp, bottom = 10.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text(if (favoritesOnly) "즐겨찾기" else "내 옷장", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-                if (!favoritesOnly) Text("등록된 의류 $count벌", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                if (!favoritesOnly) Text("등록된 의류 ${count}벌", color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             if (!favoritesOnly) FilledTonalButton(onClick = onAdd) { Icon(Icons.Default.Add, null); Text(" 추가") }
         }

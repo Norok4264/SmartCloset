@@ -32,6 +32,7 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.util.UUID
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TryOnScreen(vm: ClosetViewModel, initialTopId: Long?, onOpenClothing: (Long) -> Unit) {
     val context = LocalContext.current

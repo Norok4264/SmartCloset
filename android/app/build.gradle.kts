@@ -12,6 +12,7 @@ android {
     namespace = "com.smartcloset"
     compileSdk = 36
 
+
     defaultConfig {
         applicationId = "com.smartcloset"
         minSdk = 26
@@ -21,6 +22,11 @@ android {
         versionName = "0.1.0"
         buildConfigField("String", "TRYON_API_BASE_URL", "\"${escapedTryOnBaseUrl}\"")
     }
+
+	compileOptions {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+	}
 
     buildFeatures { compose = true; buildConfig = true }
     packaging { resources.excludes += "/META-INF/{AL2.0,LGPL2.1}" }

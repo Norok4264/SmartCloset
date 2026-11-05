@@ -8,7 +8,7 @@ Kotlin과 Jetpack Compose로 만드는 Android 네이티브 앱입니다. 현재
 2. Android SDK Platform 36과 JDK 17을 설치합니다.
 3. Gradle 동기화 후 `:android:app:assembleDebug`를 실행합니다.
 
-이 저장소에는 Gradle Wrapper가 아직 없습니다. Gradle 8.13이 설치된 환경에서 `gradle :android:app:assembleDebug`를 실행하세요.
+Gradle Wrapper가 포함되어 있습니다. Windows에서는 프로젝트 루트에서 `.\gradlew.bat :android:app:assembleDebug`를 실행하세요. Wrapper가 Gradle 8.13을 자동으로 사용합니다.
 
 기본 패키지: `com.smartcloset`. 포함 기능은 Room 기반 의류 CRUD, 검색·필터, 의류/코디 즐겨찾기, 옷장 통계, 착용 기록과 분석, 날씨 및 수동 계절 기반 코디, 저장 코디입니다. Room v1→v2→v3 마이그레이션은 기존 의류·착용 기록을 유지하고 Outfit 테이블을 추가합니다. 저장 코디는 실제 의류 ID를 참조하며, 의류 삭제 시 관련 기록과 저장 코디도 정리됩니다.
 
@@ -16,9 +16,22 @@ Kotlin과 Jetpack Compose로 만드는 Android 네이티브 앱입니다. 현재
 
 설정에서 선택할 수 있는 데일리 코디 알림은 WorkManager를 사용해 지연될 수 있으며 정확한 정시 알림을 보장하지 않습니다. Android 13 이상에서 알림 권한이 거부되어도 옷장 기능은 사용할 수 있습니다.
 
-현재 실행 환경에는 Gradle 명령과 Android SDK가 없어 실제 빌드·테스트는 검증하지 못했습니다. 실행 환경에서 Gradle 8.13/JDK 17/SDK 36을 설치한 뒤 `gradle :android:app:assembleDebug`로 빌드하세요. WorkManager 2.12.0은 Android 공식 릴리스 문서에서 안정 버전을 확인했습니다.
+Android Studio에서 Gradle 8.13, JDK 17, SDK 36 설정으로 Debug APK 빌드를 확인했습니다. WorkManager 2.12.0은 Android 공식 릴리스 문서에서 안정 버전을 확인했습니다.
 
-단위 테스트는 `gradle :android:app:testDebugUnitTest`, Room 마이그레이션·기록 Android 테스트는 에뮬레이터에서 `gradle :android:app:connectedDebugAndroidTest`로 실행합니다. 현재 환경에는 Gradle/Android SDK가 없어 실행하지 못했습니다.
+단위 테스트는 `.\gradlew.bat :android:app:testDebugUnitTest`, Room 마이그레이션·기록 Android 테스트는 에뮬레이터에서 `.\gradlew.bat :android:app:connectedDebugAndroidTest`로 실행합니다. 단위 테스트와 Android 계측 테스트는 아직 실행하지 않았습니다.
+
+
+## Android Studio 빌드 문제 해결 기록
+
+2026-11-05에 Windows 환경에서 Android Studio 실행 및 Debug APK 빌드 중 확인한 문제와 해결 사항입니다.
+
+- **Gradle 9.6.0과 Android Gradle Plugin 8.13.2 비호환:** AGP가 Gradle 9.6에서 제거된 내부 API를 사용해 플러그인 적용에 실패했습니다. Gradle Wrapper를 생성해 Gradle 8.13을 고정했습니다. 이후에는 프로젝트 루트의 `gradlew.bat`을 사용합니다.
+- **Gradle/JDK 실행 환경:** 시스템에 `gradle` 명령이 없었으므로 Gradle 8.13 배포 파일로 Wrapper를 생성했습니다. Gradle JVM은 JDK 17로 설정합니다. Gradle 8.13은 JDK 25 실행을 지원하지 않습니다.
+- **한글 프로젝트 경로:** Android Gradle Plugin의 Windows 경로 검사에서 한글 경로가 거부되어 `gradle.properties`에 `android.overridePathCheck=true`를 추가했습니다. 이 설정은 실험적 옵션 경고를 표시합니다.
+- **Java/Kotlin JVM 대상 불일치:** Java가 1.8, Kotlin이 17로 설정되어 컴파일이 실패했습니다. `android/app/build.gradle.kts`의 `compileOptions`를 Java 17로 맞췄습니다.
+- **Kotlin 컴파일 오류:** 날짜 표시에서 `ZonedDateTime`을 `LocalDateTime`으로 변환하고, 한국어 단위가 붙는 문자열 템플릿을 `${변수}` 형식으로 수정했습니다. `ClothingRepository.importPhoto()`의 반환값을 명시하고, Material3 실험 API 사용에 `@OptIn`을 추가했습니다. 이 과정에서 중복된 `@Composable` 어노테이션도 제거했습니다.
+
+**검증 결과:** `gradlew.bat :android:app:assembleDebug`가 `BUILD SUCCESSFUL`로 완료되어 Debug APK를 생성했습니다. `android.overridePathCheck` 실험 옵션 및 일부 API 관련 경고는 남아 있지만 빌드를 막지 않습니다. 단위 테스트와 에뮬레이터 계측 테스트는 별도로 실행하지 않았습니다.
 
 ## 구조
 
@@ -34,17 +47,17 @@ Kotlin과 Jetpack Compose로 만드는 Android 네이티브 앱입니다. 현재
 
 ### Android 실행 및 APK 빌드
 
-JDK 17, Android SDK Platform 36, Android Studio의 호환 Gradle 환경이 필요합니다. Gradle Wrapper는 현재 프로젝트에 포함되어 있지 않습니다.
+JDK 17, Android SDK Platform 36, Android Studio의 호환 Gradle 환경이 필요합니다. Gradle Wrapper를 사용합니다. Windows에서는 `gradlew.bat`을 실행하세요.
 
 ```powershell
-gradle :android:app:assembleDebug
-gradle :android:app:testDebugUnitTest
+.\gradlew.bat :android:app:assembleDebug
+.\gradlew.bat :android:app:testDebugUnitTest
 ```
 
 기본 URL은 비어 있어 AI 서버와 연결되지 않습니다. Android 에뮬레이터에서 개발 서버에 연결하는 Debug 빌드 예:
 
 ```powershell
-gradle :android:app:assembleDebug -PtryonApiBaseUrl=http://10.0.2.2:8000
+.\gradlew.bat :android:app:assembleDebug -PtryonApiBaseUrl=http://10.0.2.2:8000
 ```
 
 실기기에서는 개발 PC의 접근 가능한 로컬 주소를 사용하되 Debug에 한해 HTTP가 허용됩니다. Release 앱은 HTTPS 주소를 사용해야 합니다. 인증 키나 제공사 키는 Gradle 속성에 넣지 않습니다.
@@ -68,4 +81,6 @@ py -m uvicorn app.main:app --host 127.0.0.1 --port 8000
 
 ### 현재 검증 상태
 
-2026-11-05 현재 이 작업 환경에는 Android Gradle 실행 파일과 사용 가능한 Python 런타임이 없어 Android 빌드와 FastAPI 자동화 테스트를 실행하지 못했습니다. 실기기·에뮬레이터 테스트, GCP 인증 및 실제 생성 호출, 실제 이미지 품질·비용도 검증되지 않았습니다. 문서의 테스트 코드는 실행 결과로 간주하지 않습니다.
+2026-11-05 현재 Android Debug APK 빌드는 `BUILD SUCCESSFUL`로 확인했습니다. 단위 테스트, 에뮬레이터 계측 테스트, FastAPI 자동화 테스트는 실행하지 않았습니다. 실기기·에뮬레이터 기능 검증, GCP 인증 및 실제 생성 호출, 실제 이미지 품질·비용도 검증되지 않았습니다. 문서의 테스트 코드는 실행 결과로 간주하지 않습니다.
+
+
